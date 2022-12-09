@@ -28,9 +28,9 @@ Ansible Playbooks to provision k8s cluster with kubeadm
 ### Install Ansible role ansible-role-linux-kubernetes from ansible-galaxy
 A big thanks to `Lorenzo Garuti` for building an awesome Ansible role to install k8s cluster with kubeadm.
 This role will install kubernetes cluster with kubeadm on the VMs provisioned with Vagrant. 
-You can follow the steps below to install this role from https://github.com/garutilorenzo/ansible-role-linux-kubernetes
+You can follow the steps to install this role from https://github.com/garutilorenzo/ansible-role-linux-kubernetes
 
-Quickstart steps to install `ansible-role-linux-kubernetes` from ansible-galaxy:
+Quickstart guide to install `ansible-role-linux-kubernetes` from ansible-galaxy:
 - ansible, ipaddr and netaddr python modules are required to be installed on the host machine. You can execute the below command to install these modules.
   - `pip install ansible ipaddr netaddr`
 - Change the directory to k8s-cluster-kubeadm
