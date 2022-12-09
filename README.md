@@ -12,6 +12,7 @@ Ansible Playbooks to provision k8s cluster with kubeadm
 - Change the directory to `vms`
 - Copy .env_example to .env
 - Update the variables in .env file as per your environment
+- Make sure to populate the `SSH_KEY_PATH` variable with the path to your ssh key which you will use to ssh into the VMs
 - Vagrant plugins
   - vagrant-env (`vagrant plugin install vagrant-env`) 
     - In case you face any issues with vagrant-env installation, you can manually set the environment variables in the shell.
