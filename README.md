@@ -35,6 +35,8 @@ Quickstart guide to install `ansible-role-linux-kubernetes` from ansible-galaxy:
   - `pip install ansible ipaddr netaddr`
 - Change the directory to k8s-cluster-kubeadm
   - `cd k8s-cluster-kubeadm`
+- Create a directory `roles` in the current directory
+  - `mkdir roles`
 - Execute the following command to install ansible-role-linux-kubernetes from ansible-galaxy
   - `ansible-galaxy install git+https://github.com/garutilorenzo/ansible-role-linux-kubernetes.git -p roles/`
 
