@@ -1,9 +1,0 @@
----
-- hosts: all
-  become: yes
-
-  tasks:
-    - name: Update etc hosts file with network interface
-      shell: |
-        #!/bin/bash
-        echo "VM Provisioning successful!!!" >> /tmp/data.txt

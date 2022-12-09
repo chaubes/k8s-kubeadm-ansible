@@ -42,7 +42,7 @@ doc/build/
 *.sqlite
 logs/*
 
-# OS generated files #
+# os generated files #
 ######################
 ._*
 .tox
@@ -71,3 +71,9 @@ openstack-ansible-ops
 previous
 
 test-file.txt
+
+k8s-cluster-kubeadm/inventory/k8s-cluster/k8s-hosts.ini
+
+.DS_Store
+
+k8s-cluster-kubeadm/roles/ansible-role-linux-kubernetes

@@ -22,11 +22,7 @@ Vagrant.configure("2") do |config|
   # Create etc hosts file content string
   etc_hosts_file_content = ""
 
-  vm_count = ENV['MASTER_NODE_COUNT'].to_i + ENV['WORKER_NODE_COUNT'].to_i
-  master_vm_end_index = ENV['MASTER_NODE_COUNT'].to_i
-  worker_vm_start_index = master_vm_end_index + 1
-
-  def provision_vm (node, nodeName, memory, cpu, ip, hostPort, etc_hosts_file_content_string, allVmsProvFlag)
+  def provision_vm (node, nodeName, memory, cpu, ip, hostPort, etc_hosts_file_content_string)
         node.vm.provider "virtualbox" do |vbox|
             vbox.name = nodeName
             vbox.memory = memory
@@ -54,44 +50,29 @@ Vagrant.configure("2") do |config|
         end
 
         node.vm.provision "setup-dns", type: "shell", :path => "scripts/setup-dns.sh"
-
-        if allVmsProvFlag == true
-            node.vm.provision "ansible" do |ansible|
-               ansible.limit = "all"
-               ansible.playbook = "ansible/vm-post-provisioning-playbook.yml"
-            end
-        end
-
   end
 
-  (1..vm_count).each do |k|
-    TMP_NODE_NAME = ""
-    TMP_NODE_IP = ""
-    if k <= master_vm_end_index
-        TMP_NODE_NAME = "#{ENV['MASTER_NODE_NAME_PREFIX']}0#{k}"
-        TMP_NODE_IP = ENV['IP_NETWORK_RANGE'] + "#{ENV['MASTER_NODE_IP_START'] + k.to_s}"
-    end
+  # Concat master Node IP to etc hosts file content string
+  MASTER_NODE_IP = "#{ENV['IP_NETWORK_RANGE'] + ENV['MASTER_NODE_IP_START'] + 1.to_s}"
+  etc_hosts_file_content.concat("#{MASTER_NODE_IP} #{ENV['MASTER_NODE_NAME']}\n")
 
-    if k >= worker_vm_start_index
-        TMP_NODE_NAME = "#{ENV['WORKER_NODE_NAME_PREFIX']}0#{k - ENV['MASTER_NODE_COUNT'].to_i}"
-        TMP_NODE_IP = ENV['IP_NETWORK_RANGE'] + "#{ENV['WORKER_NODE_IP_START'] + k.to_s}"
-    end
+  # Append worker Ips to etc/hosts file content
+  (1..ENV['WORKER_NODE_COUNT'].to_i).each do |k|
+    TMP_NODE_NAME = "#{ENV['WORKER_NODE_NAME_PREFIX']}0#{k}"
+    TMP_NODE_IP = ENV['IP_NETWORK_RANGE'] + "#{ENV['WORKER_NODE_IP_START'] + k.to_s}"
 
     etc_hosts_file_content.concat("#{TMP_NODE_IP} #{TMP_NODE_NAME}\n")
   end
 
-  (1..vm_count).each do |i|
-    if i <= master_vm_end_index
-        config.vm.define "#{ENV['MASTER_NODE_NAME_PREFIX']}0#{i}" do |master|
-            provision_vm(master, "#{ENV['MASTER_NODE_NAME_PREFIX']}0#{i}", ENV['MASTER_NODE_MEMORY'], ENV['MASTER_NODE_CPU'], ENV['IP_NETWORK_RANGE'] + "#{ENV['MASTER_NODE_IP_START'] + i.to_s}", 2710 + i, etc_hosts_file_content, i == vm_count)
-        end
+  # Provision master node
+    config.vm.define "#{ENV['MASTER_NODE_NAME']}" do |master|
+        provision_vm(master, "#{ENV['MASTER_NODE_NAME']}", ENV['MASTER_NODE_MEMORY'], ENV['MASTER_NODE_CPU'], MASTER_NODE_IP, 2711, etc_hosts_file_content)
     end
 
-    if i >= worker_vm_start_index
-        config.vm.define "#{ENV['WORKER_NODE_NAME_PREFIX']}0#{i - ENV['MASTER_NODE_COUNT'].to_i}" do |worker|
-            provision_vm(worker, "#{ENV['WORKER_NODE_NAME_PREFIX']}0#{i - ENV['MASTER_NODE_COUNT'].to_i}", ENV['WORKER_NODE_MEMORY'], ENV['WORKER_NODE_CPU'], ENV['IP_NETWORK_RANGE'] + "#{ENV['WORKER_NODE_IP_START'] + i.to_s}", 2720 + i, etc_hosts_file_content, i == vm_count)
-        end
-    end
-
+    # Provision worker nodes
+  (1..ENV['WORKER_NODE_COUNT'].to_i).each do |i|
+     config.vm.define "#{ENV['WORKER_NODE_NAME_PREFIX']}0#{i}" do |worker|
+       provision_vm(worker, "#{ENV['WORKER_NODE_NAME_PREFIX']}0#{i}", ENV['WORKER_NODE_MEMORY'], ENV['WORKER_NODE_CPU'], ENV['IP_NETWORK_RANGE'] + "#{ENV['WORKER_NODE_IP_START'] + i.to_s}", 2720 + i, etc_hosts_file_content)
+     end
   end
 end
