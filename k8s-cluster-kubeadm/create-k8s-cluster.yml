@@ -9,3 +9,8 @@
   become: yes
   roles:
     - role: ansible-role-linux-kubernetes
+
+- hosts: kubemaster
+  become: yes
+  roles:
+    - role: kubetools-install

@@ -1,0 +1,13 @@
+---
+# tasks file for teardown-cluster
+- include_tasks:
+    file: reset_worker_node.yml
+    apply:
+      tags: reset_worker_node
+  tags: reset_worker_node
+
+- include_tasks:
+    file: reset_master_node.yml
+    apply:
+      tags: reset_master_node
+  tags: reset_master_node

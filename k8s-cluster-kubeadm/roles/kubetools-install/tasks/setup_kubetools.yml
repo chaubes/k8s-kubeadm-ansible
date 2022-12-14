@@ -1,0 +1,22 @@
+---
+- name: Create User ~/.kube directory
+  ansible.builtin.file:
+    name: /home/{{ ansible_user }}/.kube
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Populate User .kube/config file
+  ansible.builtin.copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/{{ ansible_user }}/.kube/config
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    remote_src: yes
+
+- name: Add kubectl alias
+  lineinfile:
+    path: /home/{{ ansible_user }}/.bashrc
+    line: "alias k=kubectl"
+    state: present
+    backup: yes

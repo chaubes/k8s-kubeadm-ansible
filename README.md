@@ -52,3 +52,7 @@ Quickstart guide to install `ansible-role-linux-kubernetes` from ansible-galaxy:
 - Make sure you are in the directory `k8s-cluster-kubeadm`
 - `ansible-playbook create-k8s-cluster.yml -i inventory/k8s-cluster/k8s-hosts.ini -e kubernetes_init_host=<Hostname of master as specified in the inventory file>`
   - Example: `ansible-playbook create-k8s-cluster.yml -i inventory/k8s-cluster/k8s-hosts.ini -e kubernetes_init_host=master`
+
+### Execute the Ansible playbook to un-install/cleanup kubernetes cluster
+- Make sure you are in the directory `k8s-cluster-kubeadm`
+- `ansible-playbook uninstall-k8s-cluster.yml -i inventory/k8s-cluster/k8s-hosts.ini`
