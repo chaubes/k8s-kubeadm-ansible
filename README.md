@@ -17,22 +17,22 @@ Install the following softwares on your local machine:
 
 ## VM Provisioning with Vagrant
 ### Setup Environment variables
-- Change the directory to `vms`
-- Copy .env_example to .env
-- Update the variables in .env file as per your environment
+- Make sure you are in the directory `vms`
+- Copy `.env_example` to `.env`
+- If required, update the variables in `.env` file as per your environment
 - Make sure to populate the `SSH_KEY_PATH` variable with the path to your ssh key which you will use to ssh into the VMs
-- Vagrant plugins
+- Install Vagrant plugins
   - vagrant-env (`vagrant plugin install vagrant-env`) 
     - In case you face any issues with vagrant-env installation, you can manually set the environment variables in the shell from where you are running `vagrant` commands
     - Make sure to comment/remove the line `config.env.enable` in the Vagrantfile in case you are not using `vagrant-env` plugin
 
 ### Provision Virtual VMs
-- Change the directory to `vms`
+- Make sure you are in the directory `vms`
 - Execute the following command to provision VMs
   - `vagrant up`
 - Check the VM status
   - `vagrant status`
-Make sure the VMs are up and running before proceeding to the next step
+- Make sure the VMs are up and running before proceeding to the next step
 
 ## Install Kubernetes Cluster with kubeadm using Ansible
 ### Install Ansible role ansible-role-linux-kubernetes from ansible-galaxy
@@ -71,7 +71,7 @@ Quickstart guide to install `ansible-role-linux-kubernetes` from ansible-galaxy:
   - `kubectl get nodes`
 - The alias `k` is set for the `kubectl` command in the master node, you can use the alias to run the `kubectl` commands
   - `k get nodes`
-- If you want to automate the setup  of utilities to manage the kubernetes cluster like `kubectx`, `kube auto-bashcompletion`, you can these tasks in the `kubetools-install` ansible playbook
+- If you want to automate the setup  of utilities to manage the kubernetes cluster like `kubectx`, `kube auto-bashcompletion`, you can add these tasks in the `kubetools-install` ansible playbook
 
 ## Un-install/teardown kubernetes cluster with ansible
 - Make sure you are in the directory `k8s-cluster-kubeadm`
