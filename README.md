@@ -3,14 +3,14 @@ If you are new to or learning Kubernetes, you would often like to quickly spin u
 
 The purpose of this repository is to enable the provisioning/teardown of a Kubernetes cluster built with `kubeadm` on your local machines using Vagrant, VirtualBox and Ansible playbooks.
 
-**k8s cluster configuration:** One master and multiple worker nodes
-**Virtual VM provisioning:** Using Vagrant and VirtualBox
-**Creation/teardown of k8s cluster:** Using Ansible playbooks
+- **k8s cluster configuration:** One master and multiple worker nodes
+- **Virtual VM provisioning:** Using Vagrant and VirtualBox
+- **Creation/teardown of k8s cluster:** Using Ansible playbooks
 
 _**Note:** The Kubernetes cluster created with this repository is NOT meant for production use. It is meant for learning and development purposes only._ 
 
 ## Prerequisites
-Install the following software on your local machine:
+Install the following softwares on your local machine:
 - Ansible 2.4+
 - VirtualBox
 - Vagrant
