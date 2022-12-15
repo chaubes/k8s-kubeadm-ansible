@@ -45,13 +45,13 @@ Quickstart guide to install `ansible-role-linux-kubernetes` from ansible-galaxy:
   - `pip install ansible ipaddr netaddr`
 - Change the directory to `k8s-cluster-kubeadm`
   - `cd k8s-cluster-kubeadm`
-- Create a directory `roles` in the current directory
-  - `mkdir roles`
 - Execute the following command to install ansible-role-linux-kubernetes from ansible-galaxy
   - `ansible-galaxy install git+https://github.com/garutilorenzo/ansible-role-linux-kubernetes.git -p roles/`
 
 ### Prepare the Ansible hosts inventory file
 - Copy `inventory/k8s-cluster/k8s-hosts_example.ini` to `inventory/k8s-cluster/k8s-hosts.ini`
+- You can get the details of the VMs provisioned with Vagrant by executing the following command from the `vms` directory
+  - `vagrant ssh-config`
 - Update the ansible hosts inventory file in `inventory/k8s-cluster/k8s-hosts.ini` as per your environment
 
 ### Update the Ansible role variables if required 
@@ -62,7 +62,7 @@ Quickstart guide to install `ansible-role-linux-kubernetes` from ansible-galaxy:
 - Make sure you are in the directory `k8s-cluster-kubeadm`
 - `ansible-playbook create-k8s-cluster.yml -i inventory/k8s-cluster/k8s-hosts.ini -e kubernetes_init_host=<Hostname of master as specified in the inventory file>`
   - Example: `ansible-playbook create-k8s-cluster.yml -i inventory/k8s-cluster/k8s-hosts.ini -e kubernetes_init_host=master`
-- Check the status of the kubernetes cluster, you should see the master and worker nodes in the Ready state
+- Check the status of the kubernetes cluster, you should see the master and worker nodes in the Ready state. Might take a minute or two for the nodes to be in the Ready state.
   - `kubectl get nodes`
 - Check the status of the pods in the kube-system namespace
   - `kubectl get pods -n kube-system`
@@ -72,7 +72,15 @@ Quickstart guide to install `ansible-role-linux-kubernetes` from ansible-galaxy:
 - The alias `k` is set for the `kubectl` command in the master node, you can use the alias to run the `kubectl` commands
   - `k get nodes`
 - If you want to automate the setup  of utilities to manage the kubernetes cluster like `kubectx`, `kube auto-bashcompletion`, you can add these tasks in the `kubetools-install` ansible playbook
+- Once you are done working with the kubernetes cluster, you can execute the following command from the `vms` directory to power off the Vagrant VMs
+  - `vagrant halt`
+- To bring the cluster backup, you can execute the following command from the `vms` directory
+  - `vagrant up`
+- You can also execute the following command to destroy the Vagrant VMs. This will delete the VMs and all the data in the VMs.
+  - `vagrant destroy`
 
 ## Un-install/teardown kubernetes cluster with ansible
 - Make sure you are in the directory `k8s-cluster-kubeadm`
 - `ansible-playbook uninstall-k8s-cluster.yml -i inventory/k8s-cluster/k8s-hosts.ini`
+
+_In case you face any iptables related issues while re-installing the Kubernetes cluster after running the Un-install playbook, you can either re-provision the Vagrant VMs or update `vars.yml` file to use a different subnet for the kubernetes cluster._
