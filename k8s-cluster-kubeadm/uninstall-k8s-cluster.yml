@@ -1,0 +1,6 @@
+---
+
+- hosts: kubernetes
+  become: yes
+  roles:
+    - role: teardown-cluster

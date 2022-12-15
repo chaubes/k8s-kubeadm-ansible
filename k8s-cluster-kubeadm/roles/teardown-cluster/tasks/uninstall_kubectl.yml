@@ -1,0 +1,33 @@
+---
+
+- block:
+    - name: Unhold kubelet/kubeadm/kubectl from being upgraded
+      dpkg_selections:
+        name: "{{ item }}"
+        selection: install
+      loop:
+        - kubelet
+        - kubeadm
+        - kubectl
+
+    - name: Un-Install kubelet kubeadm kubectl
+      ansible.builtin.apt: 
+        name: 
+          - kubelet
+          - kubeadm
+          - kubectl
+        state: absent
+        update_cache: yes
+  when: ansible_os_family == 'Debian'
+
+- block:
+    - name: Un-Install kubelet kubeadm kubectl
+      ansible.builtin.dnf: 
+        name: 
+          - kubelet
+          - kubeadm
+          - kubectl
+        disable_excludes: kubernetes
+        state: absent
+        update_cache: yes
+  when: ansible_os_family == 'RedHat'

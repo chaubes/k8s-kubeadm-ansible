@@ -1,0 +1,78 @@
+# Make sure to install vagrant-env (vagrant plugin install vagrant-env) before executing vagrant up
+Vagrant.configure("2") do |config|
+  # Enable vagrant-env plugin
+  config.env.enable
+
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://vagrantcloud.com/search.
+  # config.vm.box = "base"
+  config.vm.box = ENV['VM_BOX_NAME']
+
+  # In case of using insecure box and getting SSL error
+  config.vm.box_download_insecure = ENV['VM_BOX_DOWNLOAD_INSECURE']
+
+  # Disable automatic box update checking. If you disable this, then
+  # boxes will only be checked for updates when the user runs
+  # `vagrant box outdated`. This is not recommended.
+  config.vm.box_check_update = false
+
+  # Do not let vagrant automatically create ssh keys
+  config.ssh.insert_key = false
+
+  # Create etc hosts file content string
+  etc_hosts_file_content = ""
+
+  def provision_vm (node, nodeName, memory, cpu, ip, hostPort, etc_hosts_file_content_string)
+        node.vm.provider "virtualbox" do |vbox|
+            vbox.name = nodeName
+            vbox.memory = memory
+            vbox.cpus = cpu
+        end
+        node.vm.hostname = nodeName
+        node.vm.network :private_network, ip: ip
+        node.vm.network "forwarded_port", guest: 22, host: "#{hostPort}", id: "ssh", auto_correct: true
+
+        # Provisioning
+        # Copy SSH key to the guest VM
+        node.vm.provision "shell" do |s|
+            ssh_pub_key = File.readlines("#{ENV['SSH_KEY_PATH']}").first.strip
+            s.inline = <<-SHELL
+            echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
+            echo #{ssh_pub_key} >> /root/.ssh/authorized_keys
+            SHELL
+        end
+
+        node.vm.provision "shell",
+         inline: "echo VM info - #{nodeName} #{ip}"
+
+        node.vm.provision "setup-etc-hosts", :type => "shell", :path => "scripts/setup-etc-hosts-file.sh" do |s|
+          s.args = ["enp0s8", "#{etc_hosts_file_content_string}"]
+        end
+
+        node.vm.provision "setup-dns", type: "shell", :path => "scripts/setup-dns.sh"
+  end
+
+  # Concat master Node IP to etc hosts file content string
+  MASTER_NODE_IP = "#{ENV['IP_NETWORK_RANGE'] + ENV['MASTER_NODE_IP_START'] + 1.to_s}"
+  etc_hosts_file_content.concat("#{MASTER_NODE_IP} #{ENV['MASTER_NODE_NAME']}\n")
+
+  # Append worker Ips to etc/hosts file content
+  (1..ENV['WORKER_NODE_COUNT'].to_i).each do |k|
+    TMP_NODE_NAME = "#{ENV['WORKER_NODE_NAME_PREFIX']}0#{k}"
+    TMP_NODE_IP = ENV['IP_NETWORK_RANGE'] + "#{ENV['WORKER_NODE_IP_START'] + k.to_s}"
+
+    etc_hosts_file_content.concat("#{TMP_NODE_IP} #{TMP_NODE_NAME}\n")
+  end
+
+  # Provision master node
+    config.vm.define "#{ENV['MASTER_NODE_NAME']}" do |master|
+        provision_vm(master, "#{ENV['MASTER_NODE_NAME']}", ENV['MASTER_NODE_MEMORY'], ENV['MASTER_NODE_CPU'], MASTER_NODE_IP, 2711, etc_hosts_file_content)
+    end
+
+    # Provision worker nodes
+  (1..ENV['WORKER_NODE_COUNT'].to_i).each do |i|
+     config.vm.define "#{ENV['WORKER_NODE_NAME_PREFIX']}0#{i}" do |worker|
+       provision_vm(worker, "#{ENV['WORKER_NODE_NAME_PREFIX']}0#{i}", ENV['WORKER_NODE_MEMORY'], ENV['WORKER_NODE_CPU'], ENV['IP_NETWORK_RANGE'] + "#{ENV['WORKER_NODE_IP_START'] + i.to_s}", 2720 + i, etc_hosts_file_content)
+     end
+  end
+end

@@ -1,0 +1,21 @@
+---
+- block:
+    - name: Kubeadm reset master node
+      ansible.builtin.command: kubeadm reset -f
+      ignore_errors: yes
+
+    - include_tasks:
+        file: common-reset-tasks.yml
+
+    - name: Delete ~/.kube directory
+      ansible.builtin.file:
+        name: ~/.kube
+        state: absent
+
+    - name: Delete User ~/.kube directory
+      ansible.builtin.file:
+        name: /home/{{ ansible_user }}/.kube
+        state: absent
+  when:
+    - inventory_hostname in groups['kubemaster']
+  ignore_errors: "{{ ansible_check_mode }}"

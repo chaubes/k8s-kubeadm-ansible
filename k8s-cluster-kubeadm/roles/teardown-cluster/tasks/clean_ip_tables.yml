@@ -1,0 +1,7 @@
+---
+- name: Clean IP tables
+  ansible.builtin.shell: iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
+
+# Incase IPVS is enabled
+#- name: Reset IPVS tables
+#  ansible.builtin.shell: ipvsadm -C

@@ -1,0 +1,28 @@
+---
+- block:
+    - name: Drain worker node
+      ansible.builtin.command: kubectl drain {{ worker }} --delete-emptydir-data --force --ignore-daemonsets
+      delegate_to: "{{ groups['kubemaster'][0] }}"
+      with_items: "{{ groups['kubeworker'] }}"
+      loop_control:
+        loop_var: worker
+      ignore_errors: yes
+
+    - name: Kubeadm reset worker node
+      ansible.builtin.command: kubeadm reset -f
+      ignore_errors: yes
+
+    - name: Delete worker node
+      ansible.builtin.command: kubectl delete node {{ worker }}
+      delegate_to: "{{ groups['kubemaster'][0] }}"
+      run_once: true
+      with_items: "{{ groups['kubeworker'] }}"
+      loop_control:
+        loop_var: worker
+      ignore_errors: yes
+
+    - include_tasks:
+        file: common-reset-tasks.yml
+  when:
+    - inventory_hostname in groups['kubeworker']
+  ignore_errors: "{{ ansible_check_mode }}"

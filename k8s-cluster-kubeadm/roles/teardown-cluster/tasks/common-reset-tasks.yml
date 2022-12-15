@@ -1,0 +1,40 @@
+---
+- include_tasks:
+    file: clean_ip_tables.yml
+    apply:
+      tags: clean_ip_tables
+  tags: clean_ip_tables
+
+- include_tasks:
+    file: uninstall_kubectl.yml
+    apply:
+      tags: kubectl
+  tags: kubectl
+
+- name: Umount filesystems
+  include_tasks: umount_with_children.yml
+  with_items:
+    - /var/lib/kubelet
+  loop_control:
+    loop_var: mounted_fs
+
+- name: Remove service files, binaries and data
+  file:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - /var/lib/kubelet/
+    - /var/lib/cni/
+    - /etc/cni/
+
+- name: daemon_reload
+  systemd:
+    daemon_reload: yes
+
+- ansible.builtin.reboot:
+    msg: "Reboot initiated post iptables cleanup"
+    connect_timeout: 5
+    reboot_timeout: 300
+    pre_reboot_delay: 0
+    post_reboot_delay: 30
+    test_command: uptime
